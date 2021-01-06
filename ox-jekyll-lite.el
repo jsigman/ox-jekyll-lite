@@ -165,10 +165,10 @@ This function will:
            ;; if not a file, then just use the raw link itself.
            (t raw-link)
          (desc (if desc desc resolved-path)))))
-    (message "[ox-hugo-link DBG] link: %S" link)
-    (message "[ox-hugo-link DBG] link path: %s" (org-element-property :path link))
-    (message "[ox-hugo-link DBG] link filename: %s" (expand-file-name (plist-get (car (cdr link)) :path)))
-    (message "[ox-hugo-link DBG] link type: %s" type)
+    ;; (message "[ox-hugo-link DBG] link: %S" link)
+    ;; (message "[ox-hugo-link DBG] link path: %s" (org-element-property :path link))
+    ;; (message "[ox-hugo-link DBG] link filename: %s" (expand-file-name (plist-get (car (cdr link)) :path)))
+    ;; (message "[ox-hugo-link DBG] link type: %s" type)
     (org-jekyll-lite-link-maybe-image desc resolved-path)))
 
 ;;;; text
