@@ -359,17 +359,22 @@ Assume BACKEND is `jekyll'."
 At the moment, only translate 'ipython' to 'python'."
   (if (string= language "ipython") "python" language))
 
-(defun org-jekyll-lite-src-block (src-block contents info)
-  "Transcode SRC-BLOCK element into Markdown format. CONTENTS is
-nil.  INFO is a plist used as a communication channel.
+(defun org-jekyll-lite-src-block (src-block _contents info)
+  "Transcode SRC-BLOCK element into Markdown format, including the results.
+   CONTENTS is nil.  INFO is a plist used as a communication channel.
 
-Adapted from ox-gfm."
+   Adapted from ox-gfm."
   (let* ((lang (org-jekyll-lite-clean-language
                 (org-element-property :language src-block)))
          (code (org-export-format-code-default src-block info))
-         (prefix (concat "```" lang "\n"))
-         (suffix "```"))
-    (concat prefix code suffix)))
+         (src-prefix (concat "```" lang "\n"))
+         (src-suffix "```")
+         (result (org-export-get-property src-block :results info))
+         (res-prefix "\n```")
+         (res-suffix "```"))
+    (concat src-prefix code src-suffix
+            (when result
+              (concat res-prefix result res-suffix)))))
 
 (defun org-jekyll-lite-table (table contents info)
   "Empty transformation. Org tables should be valid kramdown syntax."
