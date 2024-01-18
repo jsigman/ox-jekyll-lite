@@ -360,21 +360,20 @@ At the moment, only translate 'ipython' to 'python'."
   (if (string= language "ipython") "python" language))
 
 (defun org-jekyll-lite-src-block (src-block _contents info)
-  "Transcode SRC-BLOCK element into Markdown format, including the results.
-   CONTENTS is nil.  INFO is a plist used as a communication channel.
+  "Transcode a SRC-BLOCK element from Org to Markdown.
+   Include the source code and its results.
+   INFO is a plist holding contextual information."
+  (let* ((lang (org-element-property :language src-block))
+         (code (org-element-property :value src-block))
+         (src-block-str (format "```%s\n%s\n```" lang code))
+         (results (org-jekyll-lite-get-src-block-results src-block)))
+    (concat src-block-str (when results (format "\n```output\n%s\n```" results)))))
 
-   Adapted from ox-gfm."
-  (let* ((lang (org-jekyll-lite-clean-language
-                (org-element-property :language src-block)))
-         (code (org-export-format-code-default src-block info))
-         (src-prefix (concat "```" lang "\n"))
-         (src-suffix "```")
-         (result (org-export-get-property src-block :results info))
-         (res-prefix "\n```")
-         (res-suffix "```"))
-    (concat src-prefix code src-suffix
-            (when result
-              (concat res-prefix result res-suffix)))))
+(defun org-jekyll-lite-get-src-block-results (src-block)
+  "Get the results of the source block, if they exist."
+  (let ((next-element (org-export-get-next-element src-block info)))
+    (when (and next-element (eq (org-element-type next-element) 'example-block))
+      (org-element-property :value next-element))))
 
 (defun org-jekyll-lite-table (table contents info)
   "Empty transformation. Org tables should be valid kramdown syntax."
