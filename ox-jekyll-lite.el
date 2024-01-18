@@ -131,7 +131,7 @@ so file paths will be linked as provided.")
 (defun org-jekyll-lite-file-is-image? (raw-link)
   "Tests whether RAW-LINK is a link to an image file."
   (let* ((image-suffixes '(".apng" ".bmp" ".gif" ".ico" ".cur" ".jpg" ".jpeg" ".jfif"
-                          ".pjpeg" ".pjp" ".png" ".svg" ".webp"))
+                           ".pjpeg" ".pjp" ".png" ".svg" ".webp"))
          (suffix-matches (--filter (s-ends-with? it raw-link t) image-suffixes)))
     (not (null suffix-matches))))
 
@@ -164,7 +164,7 @@ This function will:
             (org-jekyll-lite-resolve-file-path raw-path))
            ;; if not a file, then just use the raw link itself.
            (t raw-link)
-         (desc (if desc desc resolved-path)))))
+           (desc (if desc desc resolved-path)))))
     ;; (message "[ox-hugo-link DBG] link: %S" link)
     ;; (message "[ox-hugo-link DBG] link path: %s" (org-element-property :path link))
     ;; (message "[ox-hugo-link DBG] link filename: %s" (expand-file-name (plist-get (car (cdr link)) :path)))
@@ -367,11 +367,15 @@ At the moment, only translate 'ipython' to 'python'."
          (code (org-element-property :value src-block))
          (src-block-str (format "```%s\n%s\n```" lang code))
          (results (org-jekyll-lite-get-src-block-results src-block info)))
+    (message "Debug: Source Block: %s" src-block-str) ; Debugging line
+    (message "Debug: Results: %s" results)             ; Debugging line
     (concat src-block-str (when results (format "\n```output\n%s\n```" results)))))
 
 (defun org-jekyll-lite-get-src-block-results (src-block info)
   "Get the results of the source block, if they exist."
   (let ((next-element (org-export-get-next-element src-block info)))
+    (message "Debug: Next Element: %s" next-element) ; Debugging line
+    (message "Debug: Element Type: %s" (org-element-type next-element)) ; Debugging line
     (when (and next-element (eq (org-element-type next-element) 'example-block))
       (org-element-property :value next-element))))
 
@@ -437,15 +441,15 @@ string."
                       (split-string arg) " "))))
     (let* ((layout-value
             (org-jekyll-lite--get-option info
-                                       :jekyll-layout org-jekyll-lite-layout))
+                                         :jekyll-layout org-jekyll-lite-layout))
            (title
             (concat "\ntitle: \""
                     (org-jekyll-lite--get-option info
-                                               :title) "\""))
+                                                 :title) "\""))
            (excerpt
             (concat "\nexcerpt: \""
                     (org-jekyll-lite--get-option info
-                                               :subtitle) "\""))
+                                                 :subtitle) "\""))
            ;; don't include the layout category if it's not specified
            (layout (if (not (string= layout-value ""))
                        (concat "\nlayout: " layout-value)
@@ -505,7 +509,7 @@ Return output file name."
 
 ;;;###autoload
 (defun org-jekyll-lite-insert-export-options-template
-  (&optional title date setupfile categories tags layout)
+    (&optional title date setupfile categories tags layout)
   "Insert a settings template for Jekyll exporter."
   (interactive)
   (let ((layout     (or layout org-jekyll-lite-layout))
