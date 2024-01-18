@@ -359,17 +359,17 @@ Assume BACKEND is `jekyll'."
 At the moment, only translate 'ipython' to 'python'."
   (if (string= language "ipython") "python" language))
 
-(defun org-jekyll-lite-src-block (src-block _contents info)
+(defun org-jekyll-lite-src-block (src-block contents info)
   "Transcode a SRC-BLOCK element from Org to Markdown.
    Include the source code and its results.
    INFO is a plist holding contextual information."
   (let* ((lang (org-element-property :language src-block))
          (code (org-element-property :value src-block))
          (src-block-str (format "```%s\n%s\n```" lang code))
-         (results (org-jekyll-lite-get-src-block-results src-block)))
+         (results (org-jekyll-lite-get-src-block-results src-block info)))
     (concat src-block-str (when results (format "\n```output\n%s\n```" results)))))
 
-(defun org-jekyll-lite-get-src-block-results (src-block)
+(defun org-jekyll-lite-get-src-block-results (src-block info)
   "Get the results of the source block, if they exist."
   (let ((next-element (org-export-get-next-element src-block info)))
     (when (and next-element (eq (org-element-type next-element) 'example-block))
