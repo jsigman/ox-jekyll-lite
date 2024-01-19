@@ -373,20 +373,21 @@ At the moment, only translate 'ipython' to 'python'."
 
 (defun org-jekyll-lite-get-src-block-results (src-block info)
   "Get the results of the source block, if they exist."
-  (let ((result (org-element-map (org-element-parse-buffer) 'keyword
-                (lambda (el)
-                  (when (and (string= "RESULTS" (org-element-property :key el))
-                             (eq (org-export-get-parent src-block) (org-export-get-parent el)))
-                    el)))))
-    (when result
-      (let ((result-type (org-element-type (car result)))
-            (result-value (org-element-property :value (car result))))
-        (cond ((eq result-type 'example-block)
-               (format "```output\n%s\n```" result-value))
-              ((eq result-type 'export-block)
-               (format "```html\n%s\n```" result-value))
-              (t
-               (format ": %s" result-value)))))))
+  (let* ((results (org-export-get-next-element src-block info))
+         (result-type (org-element-type results)))
+    (cond ((eq result-type 'example-block)
+           ;; Handling plain text results
+           (format "```output\n%s\n```" (org-element-property :value results)))
+          ((eq result-type 'export-block)
+           ;; Handling HTML and other export results
+           (let ((export-type (org-element-property :type results)))
+             (format "```%s\n%s\n```" (or export-type "output") 
+                     (org-element-property :value results))))
+          (t
+           ;; Handling results that are not in a specific block
+           (when (org-element-property :results results)
+             (format ": %s" (org-element-property :results results)))))))
+
 
 (defun org-jekyll-lite-table (table contents info)
   "Empty transformation. Org tables should be valid kramdown syntax."
