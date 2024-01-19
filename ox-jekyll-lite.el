@@ -373,20 +373,17 @@ At the moment, only translate 'ipython' to 'python'."
 
 (defun org-jekyll-lite-get-src-block-results (src-block info)
   "Get the results of the source block, if they exist."
-  (let* ((results (org-export-get-next-element src-block info))
-         (result-type (org-element-type results)))
-    (cond ((eq result-type 'example-block)
-           ;; Handling plain text results
-           (format "```output\n%s\n```" (org-element-property :value results)))
-          ((eq result-type 'export-block)
-           ;; Handling HTML and other export results
-           (let ((export-type (org-element-property :type results)))
-             (format "```%s\n%s\n```" (or export-type "output") 
-                     (org-element-property :value results))))
-          (t
-           ;; Handling results that are not in a specific block
-           (when (org-element-property :results results)
-             (format ": %s" (org-element-property :results results)))))))
+  (let ((next-element (org-export-get-next-element src-block info)))
+    (cond
+     ;; Check if the next element is a drawer named RESULTS
+     ((and next-element (eq (org-element-type next-element) 'drawer)
+           (string= (org-element-property :drawer-name next-element) "RESULTS"))
+      (let ((contents (org-element-contents next-element)))
+        (when contents
+          ;; Format the contents of the drawer for Markdown
+          (format "```output\n%s\n```" (org-element-interpret-data contents)))))
+     ;; Add additional conditions here for other types of result blocks if needed
+     )))
 
 
 (defun org-jekyll-lite-table (table contents info)
