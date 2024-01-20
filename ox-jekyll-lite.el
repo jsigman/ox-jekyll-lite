@@ -361,15 +361,22 @@ At the moment, only translate 'ipython' to 'python'."
 
 (defun org-jekyll-lite-src-block (src-block contents info)
   "Transcode a SRC-BLOCK element from Org to Markdown.
-   Include the source code and its results.
+   Include the source code and, if needed, its results.
    INFO is a plist holding contextual information."
   (let* ((lang (org-element-property :language src-block))
          (code (org-element-property :value src-block))
          (src-block-str (format "```%s\n%s\n```" lang code))
-         (results (org-jekyll-lite-get-src-block-results src-block info)))
+         (results (org-jekyll-lite-get-src-block-results src-block info))
+         (should-append-results (not (org-export-included-in-header-p src-block info)))) ; New check here
     (message "Debug: Source Block: %s" src-block-str) ; Debugging line
     (message "Debug: Results: %s" results)             ; Debugging line
-    (concat src-block-str (when results (format "\n%s" results)))))
+    (concat src-block-str (when (and results should-append-results) (format "\n%s" results)))))
+
+(defun org-export-included-in-header-p (src-block info)
+  "Determine if the source block results are included in the header."
+  ;; Add logic here to determine if results are included based on `info`
+  ;; Return t if included, nil otherwise
+  )
 
 (defun org-jekyll-lite-get-src-block-results (src-block info)
   "Get the results of the source block, if they exist."
